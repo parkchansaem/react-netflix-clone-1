@@ -12,7 +12,7 @@ const App = () => {
       <Routes>
         <Header />
         <Switch>
-          <Route path="/">
+          <Route path="/" exact>
             <Home />
           </Route>
           <Route path="/tv">
