@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { useState } from "react";
 import { Link, useRouteMatch } from "react-router-dom";
 import styled from "styled-components";
 
@@ -11,7 +12,7 @@ const Nav = styled.nav`
   top: 0;
   background-color: black;
   font-size: 14px;
-  padding: 20px 60px;
+  padding: 20px 20px;
   color: white;
 `;
 
@@ -51,7 +52,18 @@ const Item = styled.li`
   }
 `;
 
-const Circle = styled.span`
+const Search = styled.span`
+  color: white;
+  display: flex;
+  align-items: center;
+  position: relative;
+`;
+
+const SearchSVG = styled(motion.svg)`
+  height: 25px;
+`;
+
+const Circle = styled(motion.span)`
   position: absolute;
   width: 5px;
   height: 5px;
@@ -63,14 +75,23 @@ const Circle = styled.span`
   background-color: ${(props) => props.theme.red};
 `;
 
+const Input = styled(motion.input)`
+  transform-origin: right center;
+`;
+
 const logoVariants = {
   start: { fillOpacity: 1 },
   end: { fillOpacity: [0, 1, 0], transition: { repeat: Infinity } },
 };
 
 const Header = () => {
+  const [searchOpen, setSearchOpen] = useState(false);
   const homeMatch = useRouteMatch("/");
   const tvMatch = useRouteMatch("/tv");
+
+  const handleToggleSearch = () => {
+    setSearchOpen((currentState) => !currentState);
+  };
 
   return (
     <Nav>
@@ -83,15 +104,27 @@ const Header = () => {
         </Logo>
         <Items>
           <Item>
-            <Link to="/">Home {homeMatch?.isExact === true && <Circle></Circle>}</Link>
+            <Link to="/">Home {homeMatch?.isExact === true && <Circle layoutId="circle"></Circle>}</Link>
           </Item>
           <Item>
-            <Link to="/tv">TV Shows {tvMatch?.isExact === true && <Circle></Circle>}</Link>
+            <Link to="/tv">TV Shows {tvMatch?.isExact === true && <Circle layoutId="circle"></Circle>}</Link>
           </Item>
         </Items>
       </Column>
       <Column>
-        <button>Search</button>
+        <Search>
+          <SearchSVG
+            onClick={handleToggleSearch}
+            animate={{ x: searchOpen ? -20 : 0 }}
+            transition={{ type: "linear" }}
+            fill="white"
+            viewBox="0 0 20 20"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd"></path>
+          </SearchSVG>
+          <Input animate={{ scaleX: searchOpen ? 1 : 0 }} transition={{ type: "linear" }} type="text" placeholder="Search for movie or tv show" />
+        </Search>
       </Column>
     </Nav>
   );
