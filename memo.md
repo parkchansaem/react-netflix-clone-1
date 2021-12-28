@@ -93,3 +93,23 @@ const Header = () => {
 
 export default Header;
 ```
+
+## window width, height
+
+- window.outerWidth : 브라우저 전체의 너비
+- window.outerHeight : 브라우저 전체의 높이
+- window.innerWidth : 브라우저 화면의 너비
+- window.innerHeight : 브라우저 화면의 높이
+- outerWidth vs innerWidth 비교 이미지
+- https://www.cluemediator.com/how-to-get-the-window-size-in-javascript
+
+## onExitComplete
+
+- 모든 종료 중인 노드들이 애니메이션 아웃을 완료하면 실행됩니다.
+- 다시 말해, 실행중인 애니메이션이 있다면 종료된 후에 실행되는 이벤트이다.
+- https://www.framer.com/docs/animate-presence/###onexitcomplete
+
+## slice()
+
+- slice() 메서드는 어떤 배열의 begin부터 end까지(end 미포함)에 대한 얕은 복사본을 새로운 배열 객체로 반환합니다. 원본 배열은 바뀌지 않습니다.
+- https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference/Global_Objects/Array/slice
