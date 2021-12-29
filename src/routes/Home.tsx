@@ -54,7 +54,33 @@ const Box = styled(motion.div)<{ backdroppath: string }>`
   font-size: 26px;
   background: url(${(props) => props.backdroppath}) no-repeat center center;
   background-size: cover;
+
+  &:first-child {
+    transform-origin: center left;
+  }
+  &:last-child {
+    transform-origin: center right;
+  }
 `;
+
+const Info = styled(motion.div)`
+  padding: 10px;
+  background-color: ${(props) => props.theme.black.lighter};
+  opacity: 0;
+  position: absolute;
+  width: 100%;
+  bottom: 0;
+
+  h4 {
+    text-align: center;
+    font-size: 18px;
+  }
+`;
+
+const boxVariants = {
+  initial: { scale: 1 },
+  whileHover: { scale: 1.2, y: -30, transition: { type: "tween", delay: 0.3, duration: 0.3 } },
+};
 
 const rowVariants = {
   initial: { x: window.outerWidth + 10 },
@@ -62,14 +88,18 @@ const rowVariants = {
   exit: { x: -window.outerWidth - 10, transition: { type: "tween", duration: 1 } },
 };
 
+const infoVariants = {
+  whileHover: { opacity: 1, transition: { type: "tween", delay: 0.3, duration: 0.3 } },
+};
+
 const numberOfMovie = 6;
 
 const Home = () => {
   const { isLoading, data } = useQuery<IMovieNowPlaying | undefined>(["movies", "nowPlaying"], handleMovieNowPlaying);
-  console.log("isLoading, data", isLoading, data);
-
   const [index, setIndex] = useState(0);
   const [leaving, setLeaving] = useState(false);
+
+  console.log("isLoading, data", isLoading, data);
 
   const handleToggleLeaving = () => {
     setLeaving((current) => !current);
@@ -83,8 +113,6 @@ const Home = () => {
     if (data) {
       const totalMovies = data.results.length - 1;
       const maxIndex = Math.floor(totalMovies / numberOfMovie) - 1;
-      console.log("totalMovies", totalMovies);
-      console.log("maxIndex", maxIndex);
 
       handleToggleLeaving();
       setIndex((currentIndex) => (currentIndex === maxIndex ? 0 : currentIndex + 1));
@@ -108,7 +136,18 @@ const Home = () => {
                   ?.slice(1)
                   .slice(numberOfMovie * index, numberOfMovie * index + numberOfMovie)
                   .map((movie) => (
-                    <Box key={movie.id} backdroppath={makeImagePath(movie.backdrop_path, "w500")}></Box>
+                    <Box
+                      key={movie.id}
+                      variants={boxVariants}
+                      initial="initial"
+                      whileHover="whileHover"
+                      transition={{ type: "tween" }}
+                      backdroppath={makeImagePath(movie.backdrop_path, "w500")}
+                    >
+                      <Info variants={infoVariants}>
+                        <h4>{movie.title}</h4>
+                      </Info>
+                    </Box>
                   ))}
               </Row>
             </AnimatePresence>
