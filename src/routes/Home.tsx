@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, MotionValue, useViewportScroll } from "framer-motion";
 import { useState } from "react";
 import { useQuery } from "react-query";
 import { useHistory, useRouteMatch } from "react-router";
@@ -23,6 +23,7 @@ const Banner = styled.div<{ backdropPath: string }>`
   flex-direction: column;
   justify-content: center;
   padding: 60px;
+  box-sizing: border-box;
   background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${(props) => props.backdropPath}) center center;
   background-size: cover;
 `;
@@ -79,6 +80,27 @@ const Info = styled(motion.div)`
   }
 `;
 
+const Overlay = styled(motion.div)`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+`;
+
+const MovieBox = styled(motion.div)<{ scrolly: MotionValue<number> }>`
+  position: absolute;
+  top: ${(props) => props.scrolly.get() + 200}px;
+  left: 0;
+  right: 0;
+  width: 50vw;
+  height: 60vh;
+  background-color: gray;
+  margin: 0 auto;
+`;
+
 const boxVariants = {
   initial: { scale: 1 },
   whileHover: { scale: 1.2, y: -30, transition: { type: "tween", delay: 0.3, duration: 0.3 } },
@@ -99,18 +121,13 @@ const numberOfMovie = 6;
 const Home = () => {
   const history = useHistory();
   const movieMatch = useRouteMatch<{ movieId: string }>("/movies/:movieId");
-  console.log("movieMatch", movieMatch);
-
+  const { scrollY } = useViewportScroll();
   const { isLoading, data } = useQuery<IMovieNowPlaying | undefined>(["movies", "nowPlaying"], handleMovieNowPlaying);
   const [index, setIndex] = useState(0);
   const [leaving, setLeaving] = useState(false);
 
-  console.log("isLoading, data", isLoading, data);
-
-  const handleClickBox = (movieId: number) => {
-    console.log("handleClickBox", movieId);
-    history.push(`/movies/${movieId}`);
-  };
+  console.log("scrollY", scrollY);
+  console.log("get", scrollY.get());
 
   const handleToggleLeaving = () => {
     setLeaving((current) => !current);
@@ -128,6 +145,14 @@ const Home = () => {
       handleToggleLeaving();
       setIndex((currentIndex) => (currentIndex === maxIndex ? 0 : currentIndex + 1));
     }
+  };
+
+  const handleClickBox = (movieId: number) => {
+    history.push(`/movies/${movieId}`);
+  };
+
+  const handleClickOverlay = () => {
+    history.push("/");
   };
 
   return (
@@ -167,10 +192,10 @@ const Home = () => {
           </Slider>
           <AnimatePresence>
             {movieMatch ? (
-              <motion.div
-                layoutId={movieMatch?.params?.movieId}
-                style={{ position: "absolute", width: "40vw", height: "80vh", backgroundColor: "red", top: 50, left: 0, right: 0, margin: "0 auto" }}
-              ></motion.div>
+              <>
+                <Overlay onClick={handleClickOverlay} animate={{ opacity: 1 }} exit={{ opacity: 0 }}></Overlay>
+                <MovieBox layoutId={movieMatch?.params?.movieId} scrolly={scrollY}></MovieBox>
+              </>
             ) : null}
           </AnimatePresence>
         </>
