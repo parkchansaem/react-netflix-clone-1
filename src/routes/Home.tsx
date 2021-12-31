@@ -1,4 +1,5 @@
 import { AnimatePresence, motion, MotionValue, useViewportScroll } from "framer-motion";
+import { url } from "inspector";
 import { useState } from "react";
 import { useQuery } from "react-query";
 import { useHistory, useRouteMatch } from "react-router";
@@ -97,8 +98,33 @@ const MovieBox = styled(motion.div)<{ scrolly: MotionValue<number> }>`
   right: 0;
   width: 50vw;
   height: 60vh;
-  background-color: gray;
+  background-color: ${(props) => props.theme.black.lighter};
   margin: 0 auto;
+  border-radius: 15px;
+  overflow: hidden;
+  background-color: ${(props) => props.theme.black.lighter};
+`;
+
+const MovieCover = styled.div`
+  width: 100%;
+  background-size: cover;
+  background-position: center center;
+  height: 400px;
+`;
+
+const MovieTitle = styled.h2`
+  color: ${(props) => props.theme.white.lighter};
+  padding: 20px;
+  font-size: 46px;
+  position: relative;
+  top: -80px;
+`;
+
+const MovieOverview = styled.p`
+  padding: 20px;
+  position: relative;
+  top: -80px;
+  color: ${(props) => props.theme.white.lighter};
 `;
 
 const boxVariants = {
@@ -125,9 +151,7 @@ const Home = () => {
   const { isLoading, data } = useQuery<IMovieNowPlaying | undefined>(["movies", "nowPlaying"], handleMovieNowPlaying);
   const [index, setIndex] = useState(0);
   const [leaving, setLeaving] = useState(false);
-
-  console.log("scrollY", scrollY);
-  console.log("get", scrollY.get());
+  console.log("data", data);
 
   const handleToggleLeaving = () => {
     setLeaving((current) => !current);
@@ -141,19 +165,23 @@ const Home = () => {
     if (data) {
       const totalMovies = data.results.length - 1;
       const maxIndex = Math.floor(totalMovies / numberOfMovie) - 1;
-
       handleToggleLeaving();
       setIndex((currentIndex) => (currentIndex === maxIndex ? 0 : currentIndex + 1));
     }
   };
 
   const handleClickBox = (movieId: number) => {
-    history.push(`/movies/${movieId}`);
+    return history.push(`/movies/${movieId}`);
   };
 
   const handleClickOverlay = () => {
-    history.push("/");
+    return history.push("/");
   };
+
+  console.log("movieMatch", movieMatch);
+
+  const isClickedMovie = movieMatch?.params.movieId && data?.results.find((movie) => movie.id === +movieMatch?.params.movieId);
+  console.log("isClickedMovie", isClickedMovie);
 
   return (
     <Wrapper>
@@ -194,7 +222,15 @@ const Home = () => {
             {movieMatch ? (
               <>
                 <Overlay onClick={handleClickOverlay} animate={{ opacity: 1 }} exit={{ opacity: 0 }}></Overlay>
-                <MovieBox layoutId={movieMatch?.params?.movieId} scrolly={scrollY}></MovieBox>
+                <MovieBox layoutId={movieMatch?.params?.movieId} scrolly={scrollY}>
+                  {isClickedMovie && (
+                    <div>
+                      <MovieCover style={{ backgroundImage: `linear-gradient(to top, black,transparent),  url(${makeImagePath(isClickedMovie.backdrop_path, "w500")})` }} />
+                      <MovieTitle>{isClickedMovie.title}</MovieTitle>
+                      <MovieOverview>{isClickedMovie.overview}</MovieOverview>
+                    </div>
+                  )}
+                </MovieBox>
               </>
             ) : null}
           </AnimatePresence>
